@@ -23,6 +23,13 @@ class GPS:
         data.columns = ["time", "x", "y", "z"]
         return data
 
+    def print_rms(self, kk: float, bb: float, kk2: float, bb2: float, name: str, x: np.ndarray, y: np.ndarray) -> None:
+        rmsLSM = np.sqrt(np.mean((y - kk * x - bb) ** 2))
+        rmsGLSM = np.sqrt(np.mean((y - kk2 * x - bb2) ** 2))
+
+        print('RMS for {0} LSM {1} m'.format(name, rmsLSM))
+        print('RMS for {0} GLSM {1} m'.format(name, rmsGLSM))
+
     def LSM(self, x: np.ndarray, y: np.ndarray) -> (float, float):
         N = len(x)
         mx = x.sum() / N
@@ -65,6 +72,7 @@ class GPS:
 
         plt.legend()
         plt.show()
+        self.print_rms(kk, bb, kk2, bb2, 'coordinates', self.x, self.y)
 
     def task2(self):
         delta_x = np.diff(self.x)
@@ -87,8 +95,11 @@ class GPS:
         plt.legend()
         plt.show()
 
+        self.print_rms(kk, bb, kk2, bb2, 'velocity', time_step_arr, velocity_arr)
+
 
 if __name__ == '__main__':
     gps = GPS('Rover1.cleanest')
+    gps.show_full_trajectory()
     gps.task1()
     gps.task2()
