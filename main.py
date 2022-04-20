@@ -6,17 +6,17 @@ from math import atan, degrees
 
 class GPS:
     data: pd.DataFrame
-    linestart: int
-    lineend: int
+    line_start: int
+    line_end: int
     x: np.ndarray
     y: np.ndarray
 
     def __init__(self, filename: str):
         self.data: pd.DataFrame = self.read_data(filename)
-        self.linestart = 460
-        self.lineend = 619
-        self.x = self.data['x'][self.linestart:self.lineend].to_numpy(dtype=float)
-        self.y = self.data['y'][self.linestart:self.lineend].to_numpy(dtype=float)
+        self.line_start = 460
+        self.line_end = 619
+        self.x = self.data['x'][self.line_start:self.line_end].to_numpy(dtype=float)
+        self.y = self.data['y'][self.line_start:self.line_end].to_numpy(dtype=float)
 
     def read_data(self, name: str) -> pd.DataFrame:
         data = pd.read_csv(name, sep=",", header=None)
@@ -24,11 +24,11 @@ class GPS:
         return data
 
     def print_rms(self, kk: float, bb: float, kk2: float, bb2: float, name: str, x: np.ndarray, y: np.ndarray) -> None:
-        rmsLSM = np.sqrt(np.mean((y - kk * x - bb) ** 2))
-        rmsGLSM = np.sqrt(np.mean((y - kk2 * x - bb2) ** 2))
+        rms_LSM = np.sqrt(np.mean((y - kk * x - bb) ** 2))
+        rms_GLSM = np.sqrt(np.mean((y - kk2 * x - bb2) ** 2))
 
-        print('RMS for {0} LSM {1} m'.format(name, rmsLSM))
-        print('RMS for {0} GLSM {1} m'.format(name, rmsGLSM))
+        print('RMS for {0} LSM {1} m'.format(name, rms_LSM))
+        print('RMS for {0} GLSM {1} m'.format(name, rms_GLSM))
 
     def LSM(self, x: np.ndarray, y: np.ndarray) -> (float, float):
         N = len(x)
@@ -44,8 +44,8 @@ class GPS:
         A = np.vstack([x, np.ones(len(x)), y]).T
         U, S, V = np.linalg.svd(A)
         V = V.T.conj()
-        paramsGLSM = -V[:, 2] / V[2, 2]
-        return paramsGLSM[0], paramsGLSM[1]
+        params_GLSM = -V[:, 2] / V[2, 2]
+        return params_GLSM[0], params_GLSM[1]
 
     def show_full_trajectory(self):
         plt.plot(self.data['x'], self.data['y'], 'o', label='Full trajectory', markersize=2)
